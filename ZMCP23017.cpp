@@ -82,9 +82,9 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
   }
   return value << (to-from);
 }
-  void ZMCP23017::setWire(TwoWire *MyWire)
+  void ZMCP23017::setWire(TwoWire *My_i2c)
   {
-	  _i2c=MyWire;
+	  _i2c=My_i2c;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,9 +93,9 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 or use setHardAddress to over write it.
 
  */
-void ZMCP23017::begin(TwoWire *MyWire,uint8_t addr)
+void ZMCP23017::begin(TwoWire *My_i2c,uint8_t addr)
   {
-	  _i2c=MyWire ;
+	  _i2c=My_i2c ;
 	if ((addr & ZMCP23017_ADDRESS_MASK)!=ZMCP23017_ADDRESS) {
 		while(1);
 	}
@@ -107,7 +107,7 @@ void ZMCP23017::begin(TwoWire *MyWire,uint8_t addr)
 	_IODIR = 0xffff;//input
         _GPPU = 0x0000;// no pull up
 
-	_i2c->begin();
+	//_i2c->begin();
 
 	//Set the IOCON.BANK bit to 0 to enable sequential addressing
 	//IOCON 'default' address is 0x05, but will
@@ -321,34 +321,34 @@ void ZMCP23017::internalPullupMask(word mask) {
 
 //PRIVATE
 void ZMCP23017::writeRegister(int regAddress, byte data) {
-	Wire.beginTransmission(_i2caddr);
-	Wire.write(regAddress);
-	Wire.write(data);
-	Wire.endTransmission();
+	_i2c->beginTransmission(_i2caddr);
+	_i2c->write(regAddress);
+	_i2c->write(data);
+	_i2c->endTransmission();
 }
 
 void ZMCP23017::writeRegister(int regAddress, word data) {
-	Wire.beginTransmission(_i2caddr);
-	Wire.write(regAddress);
-	Wire.write(highByte(data));
-	Wire.write(lowByte(data));
-	Wire.endTransmission();
+	_i2c->beginTransmission(_i2caddr);
+	_i2c->write(regAddress);
+	_i2c->write(highByte(data));
+	_i2c->write(lowByte(data));
+	_i2c->endTransmission();
 }
 
 word ZMCP23017::readRegister(int regAddress) {
 	word returnword = 0x00;
-	Wire.beginTransmission(_i2caddr);
-	Wire.write(regAddress);
-	Wire.endTransmission();
-	Wire.requestFrom((int)_i2caddr, 2);
+	_i2c->beginTransmission(_i2caddr);
+	_i2c->write(regAddress);
+	_i2c->endTransmission();
+	_i2c->requestFrom((int)_i2caddr, 2);
     
     int c=0;
 	//Wait for our 2 bytes to become available
-	while (Wire.available()) {
+	while (_i2c->available()) {
         //high byte
-        if (c==0)   { returnword = Wire.read() << 8; }
+        if (c==0)   { returnword = _i2c->read() << 8; }
         //low byte
-        if (c==1)   { returnword |= Wire.read(); }
+        if (c==1)   { returnword |= _i2c->read(); }
         c++;
     }
     
