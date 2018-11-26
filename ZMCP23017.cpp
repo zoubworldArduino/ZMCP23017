@@ -330,8 +330,8 @@ void ZMCP23017::writeRegister(int regAddress, byte data) {
 void ZMCP23017::writeRegister(int regAddress, word data) {
 	_i2c->beginTransmission(_i2caddr);
 	_i2c->write(regAddress);
-	_i2c->write(highByte(data));
 	_i2c->write(lowByte(data));
+	_i2c->write(highByte(data));
 	_i2c->endTransmission();
 }
 
