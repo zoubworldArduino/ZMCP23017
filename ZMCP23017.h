@@ -55,7 +55,8 @@ public:
   void begin(uint8_t addr);
   void begin(void);
   uint32_t analogRead( uint32_t pin );
-
+  bool test();
+ 
   bool check();
   
   void setHardAddress(uint8_t A210);

@@ -13,6 +13,7 @@ This code is inspireed from
 
 
 #include "ZMCP23017.h"
+#include <WireUtility.h>
 
 #define ZMCP23017_ADDRESS 0x20
 #define ZMCP23017_ADDRESS_MASK 0x78
@@ -87,6 +88,32 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 	  _i2c=My_i2c;
   }
 
+
+  bool ZMCP23017::test()
+  {
+    bool b=_i2c->testLine();
+    b&=check();
+    b&=WireTest( *_i2c, _i2caddr);
+/*IOCON
+  b1:0x05 = 0x15
+  b0: 0x0A=0xB
+  */  
+ 
+    uint8_t d=wireRead8( *_i2c, _i2caddr, ZMCP23017_IOCONB);
+      b&=wireRead8( *_i2c, _i2caddr,  ZMCP23017_IOCONB)==wireRead8( *_i2c, _i2caddr,  ZMCP23017_IOCONA);
+    b&=d&0x01==0;    
+    wireWrite8( *_i2c, _i2caddr, ZMCP23017_IOCONB,d|0x01);
+    b&=d&0x01==0;    
+    wireWrite8( *_i2c, _i2caddr, ZMCP23017_IOCONB,d|(1<<5));
+    b&=wireRead8( *_i2c, _i2caddr, ZMCP23017_IOCONB)==(d|(1<<5));
+    b&=wireRead8( *_i2c, _i2caddr, ZMCP23017_IOCONB)==wireRead8( *_i2c, _i2caddr,  ZMCP23017_IOCONA);
+    wireWrite8( *_i2c, _i2caddr, ZMCP23017_IOCONB,d&~(1<<5));
+    b&=wireRead8( *_i2c, _i2caddr, ZMCP23017_IOCONB)==(d&~(1<<5));
+    b&=wireRead8( *_i2c, _i2caddr,  ZMCP23017_IOCONB)==wireRead8( *_i2c, _i2caddr, ZMCP23017_IOCONA);
+    
+    
+  return b;
+  }
 ////////////////////////////////////////////////////////////////////////////////
 /**
  * Initializes the ZMCP23017 given its HW selected address, see datasheet for Address selection.
