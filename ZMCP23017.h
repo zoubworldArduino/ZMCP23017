@@ -65,7 +65,11 @@ This library manage the component MCP23017, this is a 16 pin I/O extention drive
 #define  MCP23017_GPB0 8
 //@}
 #define NO_CHANNEL 0xfe
- 
+ /** @name I2C base address
+*/
+//@{
+#define MCP23017_ADDR_BASE 0x20
+//@}  
 class ZMCP23017 : public PinExtender {
 public:
  /** initialise the board,
